@@ -1,6 +1,6 @@
 # intro:
 # explain RAG + LLM
-# give credits to Dr Julija Bainiaksina for the initial code example this demo is built upon
+# give credits to Dr Julija Bainiaksina for the initial code example this demo is built upon (chatgpt based)
 # go into code
 
 # import libraries
@@ -9,9 +9,10 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.vectorstores import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.prompts import ChatPromptTemplate
-from langchain_community.embeddings import OllamaEmbeddings
 
 from langchain_community.llms import Ollama
+from langchain_community.embeddings import OllamaEmbeddings
+
 from langchain.callbacks.manager import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 
@@ -24,7 +25,8 @@ pages = loader.load()
 # split the doc into smaller chunks i.e. chunk_size=500
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
 chunks = text_splitter.split_documents(pages)
-# get OpenAI Embedding model
+
+# get Embedding model
 embeddings = OllamaEmbeddings(model="llama3")
 
 # embed the chunks as vectors and load them into the database
