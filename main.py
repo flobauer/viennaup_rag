@@ -9,10 +9,12 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.vectorstores import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.prompts import ChatPromptTemplate
-from langchain_openai import OpenAIEmbeddings
-from langchain_openai import ChatOpenAI
+from langchain_community.embeddings import OllamaEmbeddings
 
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+from langchain_community.llms import Ollama
+from langchain.callbacks.manager import CallbackManager
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+
 DOC_PATH = "./ds.pdf"
 CHROMA_PATH = "vdb" 
 
@@ -27,7 +29,7 @@ text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
 chunks = text_splitter.split_documents(pages)
 
 # get OpenAI Embedding model
-embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
+embeddings = OllamaEmbeddings(model="llama3")
 
 # embed the chunks as vectors and load them into the database
 db_chroma = Chroma.from_documents(chunks, embeddings, persist_directory=CHROMA_PATH)
@@ -60,9 +62,13 @@ PROMPT_TEMPLATE = """
 prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
 prompt = prompt_template.format(context=context_text, question=query)
 
-# call LLM model to generate the answer based on the given context and query
-model = ChatOpenAI()
-response_text = model.invoke(prompt)
+llm = Ollama(
+    model="llama3",
+    callback_manager=CallbackManager(
+        [StreamingStdOutCallbackHandler()]
+    ),
+    stop=["<|eot_id|>"],
+)
 
-# output
-print(response_text.content)
+# call LLM model to generate the answer based on the given context and query
+response = llm.invoke(input=prompt)

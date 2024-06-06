@@ -1,3 +1,2 @@
 langchain==0.2.2
 langchain_community==0.2.3
-langchain_openai==0.1.8
