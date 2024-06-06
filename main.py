@@ -15,29 +15,25 @@ from langchain_community.llms import Ollama
 from langchain.callbacks.manager import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 
-DOC_PATH = "./ds.pdf"
-CHROMA_PATH = "vdb" 
-
 # ----- Data Indexing Process -----
 
 # load your pdf doc
-loader = PyPDFLoader(DOC_PATH)
+loader = PyPDFLoader("./ds.pdf")
 pages = loader.load()
 
 # split the doc into smaller chunks i.e. chunk_size=500
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
 chunks = text_splitter.split_documents(pages)
-
 # get OpenAI Embedding model
 embeddings = OllamaEmbeddings(model="llama3")
 
 # embed the chunks as vectors and load them into the database
-db_chroma = Chroma.from_documents(chunks, embeddings, persist_directory=CHROMA_PATH)
+db_chroma = Chroma.from_documents(chunks, embeddings)
 
 # ----- Retrieval and Generation Process -----
 
 # User question
-query = 'Was ist die Kritik bezüglich Datenschutzes an OpenAI in diesem Dokument?'
+query = 'Was ist das Problem mit Datenschutz an OpenAI in diesem Dokument?'
 
 # retrieve context - top 5 most relevant (closests) chunks to the query vector 
 # (by default Langchain is using cosine distance metric)
